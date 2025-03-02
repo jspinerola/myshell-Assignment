@@ -36,21 +36,21 @@ if user enters !!, execute most recent command. Achieved with a buffer. Command 
 
 #define prompt(n) printf("%s", (n) == 0 ? CMDPROMPT : ARGPROMPT);
 
-//Added flag variable 'runConcurrently' to execute() function
+// Added flag variable 'runConcurrently' to execute() function
 void execute(char *arglist[], int runConcurrently);
 char *makestring(char *buf);
 
 int main()
 {
-  char *arglist[MAXARGS + 1]; /* an array of pointers */
-  int numargs;                /* the index of the array */
-  char argbuf[ARGLEN];        /* read stuff here */
-  int willRunConcurrently; //New flag variable, 'runConcurrently', to indicate whether wait() will be invoked
-  char *commandbuffer[MAXARGS + 1] = {NULL}; //New pointer arrayc 'commandbuffer', to store previous command. 
+  char *arglist[MAXARGS + 1];                /* an array of pointers */
+  int numargs;                               /* the index of the array */
+  char argbuf[ARGLEN];                       /* read stuff here */
+  int willRunConcurrently;                   // New flag variable, 'runConcurrently', to indicate whether wait() will be invoked
+  char *commandbuffer[MAXARGS + 1] = {NULL}; // New pointer arrayc 'commandbuffer', to store previous command.
   // char *makestring();
 
   numargs = 0;
-  willRunConcurrently = 0; //Initialize flag variable to 0, indicating that the program will still invoke wait() and NOT run concurrently. Default Behavior.
+  willRunConcurrently = 0; // Initialize flag variable to 0, indicating that the program will still invoke wait() and NOT run concurrently. Default Behavior.
   while (numargs < MAXARGS)
   {
     prompt(numargs); /* prompt user for arg */
@@ -65,13 +65,13 @@ int main()
       /*If user adds an ampersand to the end of their command, the parent and child processes will run concurrently. */
       if (numargs > 0 && strcmp(arglist[numargs - 1], "&") == 0) // If user enters & to end of command...
       {
-        willRunConcurrently = 1; //Set run concurrently flag to 1, indicating wait will NOT be evoked
+        willRunConcurrently = 1; // Set run concurrently flag to 1, indicating wait will NOT be evoked
         arglist[numargs - 1] = NULL;
         numargs--;
       }
       else
       {
-        willRunConcurrently = 0; //If not, reset flag to 0
+        willRunConcurrently = 0; // If not, reset flag to 0
       }
 
       if (numargs == 0) /* no command? */
@@ -84,31 +84,32 @@ int main()
       /***** Logic for Task 3 *****/
       /*If user enters '!!', run and echo the previous command entered. */
       if (numargs == 1 && strcmp(arglist[0], "!!") == 0)
-      { //If user enters !!...
-        printf("Previous Command Executed: ");
-        for (int i = 0; commandbuffer[i] != NULL; i++) {
-          printf("%s ", commandbuffer[i]);
-        }
-        printf("\n"); //Print previous command
+      { // If user enters !!...
         if (commandbuffer[0] == NULL)
         {
-          printf("No commands in history.\n"); //If there is nothing in buffer, print the following. 
+          printf("No commands in history.\n"); // If there is nothing in buffer, print the following.
         }
         else
         {
+          printf("Previous Command Executed: ");
+          for (int i = 0; commandbuffer[i] != NULL; i++)
+          {
+            printf("%s ", commandbuffer[i]);
+          }
+          printf("\n");                                // Print previous command
           execute(commandbuffer, willRunConcurrently); /* Execute previous command */
         }
       }
       else
       {
-        //If user doens't enter !!
+        // If user doens't enter !!
         memcpy(commandbuffer, arglist, sizeof(arglist));
-        //Store previous command to buffer
+        // Store previous command to buffer
 
         execute(arglist, willRunConcurrently); /* Execute Command */
       }
 
-      numargs = 0; /* reset the index */
+      numargs = 0;             /* reset the index */
       willRunConcurrently = 0; /* Reset concurrency*/
     }
   }
@@ -119,7 +120,7 @@ int main()
 // Ensure command runs as a child process and parent waits for process to complete UNLESS flag runConcurrently is true.
 void execute(char *arglist[], int runConcurrently)
 {
-  //Create child process by evoking fork()
+  // Create child process by evoking fork()
   pid_t childProcessID = fork();
 
   if (childProcessID < 0)
@@ -137,11 +138,11 @@ void execute(char *arglist[], int runConcurrently)
   {
     if (runConcurrently != 0)
     {
-      //If runConcurrently flag is active, early return function and do NOT evoke wait()
+      // If runConcurrently flag is active, early return function and do NOT evoke wait()
       return;
     }
-    // Evoke wait(), meaning parent process will wait for child process. 
-    wait(NULL); 
+    // Evoke wait(), meaning parent process will wait for child process.
+    wait(NULL);
   }
   return;
 }
